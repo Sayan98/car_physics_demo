@@ -13,34 +13,42 @@ public class auto_controller : MonoBehaviour
     float acceleration, rotate_angle, deacceleration, brake_force;
 
     [SerializeField]
-    Transform com;
+    Transform com, wheel;
 
-    [SerializeField]
+    Transform[] mesh_wheel = new Transform[3];
     Rigidbody rigidbody;
-
     bool key_pressed, forward, backward, left, right;
-
+    
 
     void Awake() {
+
         key_pressed = forward = backward = left = right = false;
+    
     }
+
 
     void Start() {
+
         rigidbody = GetComponent<Rigidbody>();
+        rigidbody.centerOfMass = com.localPosition;
+
+        for (int i = 0; i < 3; i++)
+            mesh_wheel[i] = wheel.GetChild(i).GetComponent<Transform>();
+
     }
 
+
     void Update() {
-        
-        rigidbody.centerOfMass = com.localPosition;
 
         if(key_pressed)
             movement();
-        else {
+        else
             deacceleration_func();
-            Debug.Log("key");
-        }
+
+        front_wheel_rotation_func();
 
     }
+
 
     private void movement() {
 
@@ -52,64 +60,90 @@ public class auto_controller : MonoBehaviour
 
     }
 
+
     private void for_back_move() {
         
         var direction = 0;
         var local_speed = acceleration;
 
+
         if(forward)
             direction = 1;
         else {
+
             direction = -1;
             local_speed = acceleration/3;
+
         }
 
         
         var inversedata = transform.InverseTransformDirection(rigidbody.velocity);
         var localbrake = brake_force;
 
+
         if(inversedata.z > 0 && backward == true  ||  inversedata.z < 0 && forward == true) {
+           
             localbrake = brake_force;
             local_speed = 0;
+        
         }
         else
             localbrake = 0;
 
+
         for (int i = 0; i < 3; i++) {
+
             wheelColliders[i].motorTorque = direction * local_speed;
             wheelColliders[i].brakeTorque = localbrake;
-        }
-        
+
+        }        
     }
+
 
     private void rotate_move() {
         
         var direction = 0;
+
 
         if(left)
             direction = -1;
         else
             direction = 1;
 
+
         wheelColliders[0].steerAngle = direction * rotate_angle;
 
     }
 
-    private void deacceleration_func() {
 
-        if(forward == false || backward == false)
-            for (int i = 0; i < 3; i++) {
-                wheelColliders[i].motorTorque = 0;
-                wheelColliders[i].brakeTorque = deacceleration;
-            }
+    private void front_wheel_rotation_func() {
 
+        for (int i = 0; i < 3; i++) {
+
+            mesh_wheel[i].Rotate(wheelColliders[i].rpm / 30 * Time.deltaTime , 0, 0);
+            mesh_wheel[i].localEulerAngles = new Vector3(mesh_wheel[i].localEulerAngles.x, wheelColliders[i].steerAngle, mesh_wheel[i].localEulerAngles.z);
+        
+        }
     }
 
 
+    private void deacceleration_func() {
+
+
+        if(forward == false || backward == false)
+            for (int i = 0; i < 3; i++) {
+
+                wheelColliders[i].motorTorque = 0;
+                wheelColliders[i].brakeTorque = deacceleration;
+
+            }
+    }
 
 
     public void clicked_button(Button button) {
+
         key_pressed = true;
+
 
         switch (button.name) {
             
@@ -127,8 +161,10 @@ public class auto_controller : MonoBehaviour
             
         }
     }
-    
+
+
     public void button_released(Button button1) {
+
 
         if(button1.name == "W" || button1.name == "S") {
             
@@ -138,7 +174,8 @@ public class auto_controller : MonoBehaviour
                 key_pressed = false;
         
         }
-        
+
+
         if(button1.name == "A" || button1.name == "D") {
             
             left = right = false;
@@ -148,7 +185,7 @@ public class auto_controller : MonoBehaviour
                 key_pressed = false;
         
         }
-
-    
     }
+
+
 }
