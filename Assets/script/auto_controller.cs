@@ -9,8 +9,8 @@ public class auto_controller : MonoBehaviour
     [SerializeField]
     WheelCollider[] wheelColliders;
 
-    [SerializeField]
-    float acceleration, rotate_angle, deacceleration, brake_force;
+    
+    public float acceleration, rotate_angle, deacceleration, brake_force;
 
     [SerializeField]
     Transform com, wheel;
@@ -19,6 +19,7 @@ public class auto_controller : MonoBehaviour
     Rigidbody rigidbody;
     bool key_pressed, forward, backward, left, right;
     
+    select select;
 
     void Awake() {
 
@@ -35,8 +36,31 @@ public class auto_controller : MonoBehaviour
         for (int i = 0; i < 3; i++)
             mesh_wheel[i] = wheel.GetChild(i).GetComponent<Transform>();
 
+        select  = GameObject.Find("temp").GetComponent<select>();
+
     }
 
+    ////temp
+    public void set_data() {
+
+        if(select.config == 2) {
+            acceleration = 3500;
+            deacceleration = 7000;
+            rotate_angle = 35;
+            brake_force = 300000;
+        } else if(select.config == 3) {
+            acceleration = 2000;
+            deacceleration = 4000;
+            rotate_angle = 20;
+            brake_force = 180000;
+        } else if(select.config == 4) {
+            acceleration = 1000;
+            deacceleration = 9000;
+            rotate_angle = 15;
+            brake_force = 120000;
+        }
+
+    }
 
     void Update() {
 
