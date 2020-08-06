@@ -13,9 +13,13 @@ public class traffic_cars : MonoBehaviour
 
     public float distance;
 
+    Rigidbody rigidbody;
+
 
     void Start() {
+
         local_speed = speed;
+
     }
     
     
@@ -37,35 +41,29 @@ public class traffic_cars : MonoBehaviour
                 local_speed = 0;
             else
                 local_speed = speed;
+
         }
 
-    }
-
-
-    void OnCollisionStay(Collision enter) {
-        
         if(enter.gameObject.tag == "cars") {
-
+            
             Vector3 forward = transform.TransformDirection(Vector3.forward);
             Vector3 toOther = enter.gameObject.transform.position - transform.position;
 
-            if (Vector3.Dot(forward, toOther) > 0) {
-
+            if (Vector3.Dot(forward, toOther) > 0)
                 local_speed = 0;
-            
-            }
 
         }
 
     }
 
 
-    void OnCollisionExit(Collision exit) {
+    void OnTriggerExit(Collider exit) {
         
         if(exit.gameObject.tag == "cars")
             StartCoroutine(wait_start());
 
     }
+    
 
 
     IEnumerator wait_start() {
